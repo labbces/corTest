@@ -32,33 +32,42 @@ def write_data_to_file(filename, num_patterns, num_columns, noise_mean, noise_st
             for row in data:
                 f.write(','.join(map(str, row)) + '\n')
             total_rows += pattern_repeats
+        #Dimensions of the final datamatrix    
+        print(f"Dimensions of the data matrix: [{total_rows},{num_columns}]\n")
 
 def read_data_from_file(filename):
     return np.loadtxt(filename, delimiter=',')
 
-def plot_clustered_heatmap(data):
+def plot_clustered_heatmap(data, filename_base):
     correlation_matrix = np.corrcoef(data, rowvar=True)
-    sns.clustermap(correlation_matrix, metric="correlation", standard_scale=1, cmap='coolwarm', figsize=(13, 10))
-    plt.show()
+    g = sns.clustermap(correlation_matrix, metric="correlation", standard_scale=1, cmap='coolwarm', figsize=(13, 10))
+    png_file = f'{filename_base}.png'
+    #svg_file = f'{filename_base}.svg'
+    g.savefig(png_file)
+    #g.savefig(svg_file)
 
 def main():
     #Number of clusters present in the data
-    num_patterns = 100
+    num_patterns = 1000
     #number of conditions/columns
     num_columns = 30
-    filename = 'correlated_matrix.txt'
+    #For eacc clustr, the falues of the variables will be added with normal noise following these parameters
     noise_mean = 0.2
     noise_std = 0.8
+    #Each clluster will have a different number of members, the number of member is sampled from a uniform distribution of integers, betweend the following two
     min_reps = 2
     max_reps = 100
-    max_rows = 1000  # Approximate maximum number of rows
-
+    #The whole matrix will try to have this total number of rows (genes)
+    max_rows = 600000  # Approximate maximum number of rows
+    #outputfilename with the correlated matrix
+    filename_base = f'correlated_matrix_{num_patterns}patterns_{max_rows}maxrows_{num_columns}cols'
+    filename = f'{filename_base}.txt'
     write_data_to_file(filename, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows)
 
-    data = read_data_from_file(filename)
-    print(f"Dimensions of the data matrix: {data.shape}")
-
-    plot_clustered_heatmap(data)
+    #if less than 1000 rows plot the correlation heatmap
+    if max_rows <= 1000:
+        data =  read_data_from_file(filename)
+        plot_clustered_heatmap(data,filename_base)
 
 if __name__ == "__main__":
     main()
