@@ -1,0 +1,37 @@
+import numpy as np
+import pandas as pd
+import deepgraph as dg
+from memory_profiler import memory_usage
+import multiprocessing
+from time import time
+
+# Function to create a large matrix and compute pairwise correlations using DeepGraph
+def compute_correlations(n_cores):
+    # Simulate a large matrix (for demonstration purposes)
+    n_rows = 50000  # Reduced for demonstration purposes; adjust as needed
+    n_cols = 30
+    data = np.random.rand(n_rows, n_cols)
+    v = pd.DataFrame(data)
+    g = dg.DeepGraph(v)
+
+    # Start timer
+    start_time = time()
+
+    # Compute the Pearson correlation between pairs of rows in parallel
+    gt = g.create_edges(connectors=[dg.corr], no_duplicates=True, parallel=n_cores)
+
+    # Stop timer
+    elapsed_time = time() - start_time
+    return elapsed_time
+
+# Test the performance for different numbers of cores
+max_cores = multiprocessing.cpu_count()  # Adjust X to your maximum number of cores
+results = []
+
+for n_cores in range(1, max_cores + 1):
+    peak_memory = max(memory_usage((compute_correlations, (n_cores,))))
+    elapsed_time = compute_correlations(n_cores)
+    results.append((n_cores, peak_memory, elapsed_time))
+    print(f"Cores: {n_cores}, Peak Memory: {peak_memory:.2f} MiB, Time: {elapsed_time:.2f} s")
+
+# Results contain (number of cores, peak memory usage, elapsed time)
