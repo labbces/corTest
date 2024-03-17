@@ -17,7 +17,7 @@ args = parser.parse_args()
 n_processes = args.max_cores
 
 # load samples as memory-map
-X = np.load('args.file_name', mmap_mode='r')
+X = np.load(args.file_name, mmap_mode='r')
 
 # create node table that stores references to the mem-mapped samples
 v = pd.DataFrame({'index': range(X.shape[0])})
