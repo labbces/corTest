@@ -12,7 +12,7 @@ def compute_correlations(file_name, n_cores):
         g = dg.DeepGraph(v)
 
         # Compute the Pearson correlation between pairs of rows in parallel
-        g.create_edges(connectors=[dg.corr], no_duplicates=True, parallel=n_cores)
+        g.create_edges(connectors=corr, no_duplicates=True, parallel=n_cores)
 
     # Start timer
     start_time = time()
