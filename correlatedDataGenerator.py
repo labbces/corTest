@@ -56,9 +56,9 @@ def main():
     noise_std = 0.8
     #Each clluster will have a different number of members, the number of member is sampled from a uniform distribution of integers, betweend the following two
     min_reps = 2
-    max_reps = 1000
+    max_reps = 100
     #The whole matrix will try to have this total number of rows (genes)
-    max_rows = 600000  # Approximate maximum number of rows
+    max_rows = 6000  # Approximate maximum number of rows
     #outputfilename with the correlated matrix
     filename_base = f'correlated_matrix_{num_patterns}patterns_{max_rows}maxrows_{num_columns}cols'
     filename = f'{filename_base}.txt'
