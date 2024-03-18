@@ -38,6 +38,8 @@ v = pd.DataFrame({'index': range(X.shape[0])})
 
 # connector function to compute pairwise pearson correlations
 def corr(index_s, index_t):
+#    print(f's: {index_s}\n')
+#    print(f't: {index_t}\n')
     features_s = X[index_s]
     features_t = X[index_t]
     corr = np.einsum('ij,ij->i', features_s, features_t) / n_cols
@@ -49,6 +51,7 @@ pos_array = np.array(np.linspace(0, n_rows*(n_rows-1)//2, n_processes), dtype=in
 # parallel computation
 def create_ei(i):
 
+    print(f'i: {i}\n')
     from_pos = pos_array[i]
     to_pos = pos_array[i+1]
 
@@ -74,13 +77,14 @@ if __name__ == '__main__':
 # store correlation values
 files = os.listdir(TMPpath)
 files.sort()
-store = pd.HDFStore('e.h5', mode='w')
+fileHDF='e'+current_time.strftime('%Y-%m-%d_%H-%M-%S')+'.h5'
+store = pd.HDFStore(fileHDF, mode='w')
 for f in files:
     et = pd.read_pickle('{}/{}'.format(TMPpath, f))
     store.append('e', et, format='t', data_columns=True, index=False)
 store.close()
 
-e = pd.read_hdf('e.h5')
+e = pd.read_hdf(fileHDF)
 print(e)
 
-shutil.rmtree(TMPpath)
+#shutil.rmtree(TMPpath)
