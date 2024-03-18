@@ -7,7 +7,8 @@ def generate_correlated_data_with_variable_noise(mean, cov, rows, noise_mean, no
     noise_level = np.abs(np.random.normal(noise_mean, noise_std))
     noise = np.random.normal(0, noise_level, base_data.shape)
     noisy_data = base_data + noise
-    return noisy_data
+    noisy_data_scaled = (noisy_data - noisy_data.mean(axis=1, keepdims=True)) / noisy_data.std(axis=1, keepdims=True)
+    return noisy_data, noisy_data_scaled
 
 def create_patterns(num_patterns, num_columns):
     patterns = []
@@ -18,9 +19,9 @@ def create_patterns(num_patterns, num_columns):
         patterns.append((mean, cov))
     return patterns
 
-def write_data_to_file(filename, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows):
+def write_data_to_file(filename, filename_scaled, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows):
     total_rows = 0
-    with open(filename, 'w') as f:
+    with open(filename, 'w') as f, open(filename_scaled, 'w') as fs:
         for mean, cov in create_patterns(num_patterns, num_columns):
             if total_rows >= max_rows:
                 break  # Stop if we have reached or exceeded the max_rows limit
@@ -28,9 +29,11 @@ def write_data_to_file(filename, num_patterns, num_columns, noise_mean, noise_st
             # Adjust pattern_repeats if adding them would exceed max_rows
             if total_rows + pattern_repeats > max_rows:
                 pattern_repeats = max_rows - total_rows
-            data = generate_correlated_data_with_variable_noise(mean, cov, pattern_repeats, noise_mean, noise_std)
+            data, data_scaled = generate_correlated_data_with_variable_noise(mean, cov, pattern_repeats, noise_mean, noise_std)
             for row in data:
                 f.write(','.join(map(str, row)) + '\n')
+            for row2 in data_scaled:
+                fs.write(','.join(map(str, row2)) + '\n')
             total_rows += pattern_repeats
         #Dimensions of the final datamatrix    
         print(f"Dimensions of the data matrix: [{total_rows},{num_columns}]\n")
@@ -56,13 +59,14 @@ def main():
     noise_std = 0.8
     #Each clluster will have a different number of members, the number of member is sampled from a uniform distribution of integers, betweend the following two
     min_reps = 2
-    max_reps = 100
+    max_reps = 1000
     #The whole matrix will try to have this total number of rows (genes)
-    max_rows = 6000  # Approximate maximum number of rows
+    max_rows = 600000  # Approximate maximum number of rows
     #outputfilename with the correlated matrix
     filename_base = f'correlated_matrix_{num_patterns}patterns_{max_rows}maxrows_{num_columns}cols'
     filename = f'{filename_base}.txt'
-    write_data_to_file(filename, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows)
+    filename_scaled = f'{filename_base}_scaled.txt'
+    write_data_to_file(filename, filename_scaled, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows)
 
     #if less than 1000 rows plot the correlation heatmap
     if max_rows <= 1000:
