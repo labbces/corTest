@@ -19,8 +19,12 @@ def create_patterns(num_patterns, num_columns):
         patterns.append((mean, cov))
     return patterns
 
-def write_data_to_file(filename, filename_scaled, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows):
+def write_data_to_file(filename_base, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows):
     total_rows = 0
+    filename = f'{filename_base}.txt'
+    filename_scaled = f'{filename_base}_scaled.txt'
+    filname_binary = f'{filename_base}.npbin'
+    filename_scaled_binary = f'{filename_base}_scaled.npbin'
     with open(filename, 'w') as f, open(filename_scaled, 'w') as fs:
         for mean, cov in create_patterns(num_patterns, num_columns):
             if total_rows >= max_rows:
@@ -37,6 +41,10 @@ def write_data_to_file(filename, filename_scaled, num_patterns, num_columns, noi
             total_rows += pattern_repeats
         #Dimensions of the final datamatrix    
         print(f"Dimensions of the data matrix: [{total_rows},{num_columns}]\n")
+        datatest = np.loadtxt(filename, delimiter=',')
+        np.save(filname_binary, datatest)
+        datatest_scaled = np.loadtxt(filename_scaled, delimiter=',')
+        np.save(filename_scaled_binary, datatest_scaled)
 
 def read_data_from_file(filename):
     return np.loadtxt(filename, delimiter=',')
@@ -64,9 +72,8 @@ def main():
     max_rows = 600000  # Approximate maximum number of rows
     #outputfilename with the correlated matrix
     filename_base = f'correlated_matrix_{num_patterns}patterns_{max_rows}maxrows_{num_columns}cols'
-    filename = f'{filename_base}.txt'
-    filename_scaled = f'{filename_base}_scaled.txt'
-    write_data_to_file(filename, filename_scaled, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows)
+    
+    write_data_to_file(filename_base, num_patterns, num_columns, noise_mean, noise_std, min_reps, max_reps, max_rows)
 
     #if less than 1000 rows plot the correlation heatmap
     if max_rows <= 1000:

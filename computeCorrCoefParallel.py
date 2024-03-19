@@ -33,6 +33,7 @@ TMPpath='tmp/correlations_'+current_time.strftime('%Y-%m-%d_%H-%M-%S')
 # load samples as memory-map
 X = np.memmap(args.file_name, mode='r', shape=(n_rows,n_cols))
 
+
 print(f'shape0: {X.shape[0]}\n')
 # create node table that stores references to the mem-mapped samples
 v = pd.DataFrame({'index': range(X.shape[0])})
