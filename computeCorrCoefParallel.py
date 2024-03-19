@@ -1,3 +1,4 @@
+#conda create -n corTest deepgraph numpy pandas tables matplot seaborn
 import argparse
 import shutil
 import deepgraph as dg
